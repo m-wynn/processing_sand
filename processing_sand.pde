@@ -1,4 +1,5 @@
 ArrayList<Element> elements;
+int id = 0;
 void setup()
 {
   size(500,500);
@@ -11,7 +12,7 @@ void draw()
   background(255);
   if (mousePressed)
   {
-   elements.add(new Element(mouseX, mouseY));  //Each mouse press adds a new Element based on what's selected (this is just generic for now)
+   elements.add(new Element(mouseX, mouseY, id++));  //Each mouse press adds a new Element based on what's selected (this is just generic for now)
   }
   for(int i = 0; i < elements.size(); i++)
     {
@@ -29,11 +30,13 @@ class Element //Elements are each block. Just a generic block here, figured we c
   float gSpeed = 1;
   boolean settled;
   boolean settledF;
+  int identification;
   
-  Element(int xP, int yP) 
+  Element(int xP, int yP, int ident)
   {
     xPos = xP;
     yPos = yP;
+    identification = ident;
   }
   
   void display()
@@ -45,7 +48,7 @@ class Element //Elements are each block. Just a generic block here, figured we c
   }
   
   void gravity() 
-  { //This is about where any issues I'm having are, this part handles both the falling of blocks and their collision.
+  { 
     if(!settled) //Moves the block down at gSpeed's speed
     { 
       yPos = yPos + gSpeed;
@@ -54,7 +57,7 @@ class Element //Elements are each block. Just a generic block here, figured we c
     {
       for(int i = 0; i < elements.size()-1; i++)
       {
-        if(yPos == elements.get(i).yPos && xPos == elements.get(i).xPos)
+        if(identification != elements.get(i).identification && yPos == elements.get(i).yPos && xPos == elements.get(i).xPos)
         { 
          yPos-=1;
          settledF = true;
