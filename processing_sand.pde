@@ -58,10 +58,15 @@ class Element //Elements are each block. Just a generic block here, figured we c
       for(int i = 0; i < elements.size()-1; i++)
       {
         if(identification != elements.get(i).identification && yPos == elements.get(i).yPos && xPos == elements.get(i).xPos)
-        { 
-         yPos-=1;
-         settledF = true;
-         settled = true;
+        {
+          if(elements.get(i).settled)
+          {
+            yPos-=1;
+            settledF = true;
+            settled = true;
+          }else{
+            //remove the element?
+          }
         }
       }
     } 
