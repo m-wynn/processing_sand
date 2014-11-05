@@ -57,7 +57,7 @@ class Element //Elements are each block. Just a generic block here, figured we c
     {
       for(int i = 0; i < elements.size()-1; i++)
       {
-        if(identification != elements.get(i).identification && yPos == elements.get(i).yPos && xPos == elements.get(i).xPos)
+        if(yPos == elements.get(i).yPos && xPos == elements.get(i).xPos && identification != elements.get(i).identification)
         {
           if(elements.get(i).settled)
           {
