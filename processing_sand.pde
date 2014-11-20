@@ -12,7 +12,8 @@ void draw()
   background(255);
   if (mousePressed)
   {
-   elements.add(new Element(mouseX, mouseY, id++));  //Each mouse press adds a new Element based on what's selected (this is just generic for now)
+    int random = (int )(Math.random() * 10 - 5);
+    elements.add(new Element(mouseX+random, mouseY, id++));  //Each mouse press adds a new Element based on what's selected (this is just generic for now)
   }
   for(int i = 0; i < elements.size(); i++)
     {
