@@ -1,3 +1,5 @@
+import java.util.Random;
+
 ArrayList<Element> elements;
 int id = 0;
 void setup()
@@ -50,6 +52,7 @@ class Element //Elements are each block. Just a generic block here, figured we c
   
   void gravity() 
   { 
+    Random random = new Random();
     if(!settled) //Moves the block down at gSpeed's speed
     { 
       yPos = yPos + gSpeed;
@@ -62,9 +65,33 @@ class Element //Elements are each block. Just a generic block here, figured we c
         {
           if(elements.get(i).settled)
           {
-            yPos-=1;
-            settledF = true;
-            settled = true;
+            int randomDir = random.nextInt(7) - 3;
+            boolean stick=false;
+            boolean stickReverse = false;
+            if(randomDir != 0){
+              for(int j = 0; j < elements.size()-1; j++)
+              {
+                if(elements.get(j).settled && yPos == elements.get(j).yPos)
+                {
+                  if((xPos+randomDir) == elements.get(j).xPos)
+                    stick = true;
+                  else if((xPos-randomDir) == elements.get(j).xPos)
+                    stickReverse = true;
+                }
+              }
+            }else{
+              stick = true;
+              stickReverse = true;
+            }
+            if(!stick){
+              xPos+=randomDir;
+            }else if(!stickReverse){
+              xPos-=randomDir;
+            }else{
+              yPos-=1;
+              settledF = true;
+              settled = true;
+            }
           }else{
             //remove the element?
           }
