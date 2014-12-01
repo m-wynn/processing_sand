@@ -1,16 +1,47 @@
 import java.util.Random;
+import controlP5.*;
+
+ControlP5 cp5;
+
+DropdownList list;
 
 ArrayList<Element> elements;
 int id = 0;
+int brushType = 0;
+/*
+Brush types:
+0: sand
+1: Water
+2: Wall
+3: Eraser
+*/
 void setup()
 {
   size(500,500);
-  
   elements = new ArrayList<Element>();
+  cp5 = new ControlP5(this);
+  // create a DropdownList
+  list = cp5.addDropdownList("Material")
+          .setPosition(400, 20);
+          
+  list.setBackgroundColor(color(190));
+  list.setItemHeight(20);
+  list.setBarHeight(15);
+  list.captionLabel().set("Material");
+  list.captionLabel().style().marginTop = 3;
+  list.captionLabel().style().marginLeft = 3;
+  list.valueLabel().style().marginTop = 3;
+  list.addItem("Sand", 0);
+  list.addItem("Water", 1);
+  list.addItem("Wall", 2);
+  list.addItem("Eraser", 3);
+  list.setColorBackground(color(60));
+  list.setColorActive(color(255, 128));
 }
 
 void draw()
 {
+
   background(255);
   if (mousePressed)
   {
@@ -25,12 +56,28 @@ void draw()
     }
 }
 
+void controlEvent(ControlEvent theEvent) {
+  // DropdownList is of type ControlGroup.
+  // A controlEvent will be triggered from inside the ControlGroup class.
+  // therefore you need to check the originator of the Event with
+  // if (theEvent.isGroup())
+  // to avoid an error message thrown by controlP5.
+
+  if (theEvent.isGroup() && theEvent.getGroup().toString() == "Material [DropdownList]") {
+    // check if the Event was triggered from a ControlGroup
+    brushType = (int) theEvent.getGroup().getValue();
+    print(brushType);
+  }else{
+    print(theEvent.getGroup().toString());
+  }
+}
+
 class Element //Elements are each block. Just a generic block here, figured we could add inherited objects for the different types
 {
   color c;
   float xPos;
   float yPos;
-  float gSpeed = 1;
+  float gSpeed = 2;
   boolean settled;
   boolean settledF;
   int identification;
@@ -52,6 +99,7 @@ class Element //Elements are each block. Just a generic block here, figured we c
   
   void gravity() 
   { 
+    //print(brushType);
     Random random = new Random();
     if(!settled) //Moves the block down at gSpeed's speed
     { 
