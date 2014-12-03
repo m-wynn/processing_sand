@@ -1,16 +1,26 @@
+import ddf.minim.spi.*;
+import ddf.minim.signals.*;
+import ddf.minim.*;
+import ddf.minim.analysis.*;
+import ddf.minim.ugens.*;
+import ddf.minim.effects.*;
+
 import java.util.Random;
 import controlP5.*;
 
 ControlP5 cp5;
-
 DropdownList list;
+
+Minim minim;
+AudioPlayer sandRush;
 
 ArrayList<Element> elements;
 int id = 0;
 int brushType = 0;
+boolean playing;
 /*
 Brush types:
-0: sand
+0: Sand
 1: Water
 2: Wall
 3: Eraser
@@ -37,16 +47,33 @@ void setup()
   list.addItem("Eraser", 3);
   list.setColorBackground(color(60));
   list.setColorActive(color(255, 128));
+  
+  minim = new Minim(this);
+  sandRush = minim.loadFile("sandrush.mp3", 2048);
+  playing = false;
 }
 
 void draw()
 {
-
+  /*for(int i = 0; i < sandRush.bufferSize() - 1; i++)
+  {
+    line(i, 50 + sandRush.left.get(i)*50, i+1, 50 + sandRush.left.get(i+1)*50);
+    line(i, 150 + sandRush.right.get(i)*50, i+1, 150 + sandRush.right.get(i+1)*50);
+  }*/
   background(255);
   if (mousePressed)
   {
+    if(!playing)
+    {
+      sandRush.loop();
+      playing = true;
+    }
     int random = (int )(Math.random() * 10 - 5);
     elements.add(new Element(mouseX+random, mouseY, id++));  //Each mouse press adds a new Element based on what's selected (this is just generic for now)
+  }else if(playing)
+  {
+    sandRush.play();
+    playing = false;
   }
   for(int i = 0; i < elements.size(); i++)
     {
@@ -63,7 +90,7 @@ void controlEvent(ControlEvent theEvent) {
   // if (theEvent.isGroup())
   // to avoid an error message thrown by controlP5.
 
-  if (theEvent.isGroup() && theEvent.getGroup().toString() == "Material [DropdownList]") {
+  if (theEvent.isGroup()) {
     // check if the Event was triggered from a ControlGroup
     brushType = (int) theEvent.getGroup().getValue();
     print(brushType);
