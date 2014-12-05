@@ -63,13 +63,23 @@ void draw()
   background(255);
   if (mousePressed)
   {
-    if(!playing)
+    if(!playing && brushType == 0)
     {
       sandRush.loop();
       playing = true;
     }
     int random = (int )(Math.random() * 10 - 5);
-    elements.add(new Element(mouseX+random, mouseY, id++));  //Each mouse press adds a new Element based on what's selected (this is just generic for now)
+    switch(brushType){
+      case 0:  elements.add(new Element(mouseX+random, mouseY, id++));  //sand
+                break;
+      case 1:  elements.add(new Water(mouseX+random, mouseY, id++));  //water
+                break;
+      case 2:  elements.add(new Wall(mouseX, mouseY, pmouseX, pmouseY, id++));  //wall
+                break;
+      case 3:  //eraser
+                break;
+    }
+      
   }else if(playing)
   {
     sandRush.play();
@@ -108,6 +118,10 @@ class Element //Elements are each block. Just a generic block here, figured we c
   boolean settled;
   boolean settledF;
   int identification;
+  
+  Element()
+  {
+  }
   
   Element(int xP, int yP, int ident)
   {
@@ -176,4 +190,38 @@ class Element //Elements are each block. Just a generic block here, figured we c
     if(yPos >= height-1) //Stops a block if it hits the bottom of the screen
       settled = true;
   }
+}
+
+class Wall extends Element
+{
+  float xEndPos;
+  float yEndPos;
+  Wall(int xP, int yP, int x2P, int y2P, int ident)
+  {
+    xPos = xP;
+    yPos = yP;
+    xEndPos = x2P;
+    yEndPos = y2P;
+    identification = ident;
+  }
+  void display()
+  {
+    stroke(0);
+    fill(0);
+    line(xPos,yPos,xEndPos,yEndPos);
+  }
+  void gravity() 
+  {
+    settled = true;
+    settledF = true;
+  }
+}
+
+class Water extends Element
+{
+  Water(int xP, int yP, int ident)
+  {
+    super(xP,yP,ident);
+  }
+
 }
