@@ -14,7 +14,7 @@ DropdownList list;
 Minim minim;
 AudioPlayer sandRush;
 
-ArrayList<Element> elements;
+Element[][] elements;
 int id = 0;
 int brushType = 0;
 boolean playing;
@@ -28,7 +28,7 @@ Brush types:
 void setup()
 {
   size(500,500);
-  elements = new ArrayList<Element>();
+  elements = new Element[502][502];
   cp5 = new ControlP5(this);
   // create a DropdownList
   list = cp5.addDropdownList("Material")
@@ -63,34 +63,43 @@ void draw()
   background(255);
   if (mousePressed)
   {
-    if(!playing && brushType == 0)
+    if(mouseY > 0 && mouseX > 0 && mouseY < 500 && mouseX < 500)
     {
-      sandRush.loop();
-      playing = true;
+      if(!playing && brushType == 0)
+      {
+        sandRush.loop();
+        playing = true;
+      }
+      int random = (int )(Math.random() * 10 - 5);
+      switch(brushType){
+        case 0:  elements[mouseX+random][mouseY] = new Element(mouseX+random, mouseY, id++);  //sand
+                  break;
+        case 1:  elements[mouseX][mouseY] = new Water(mouseX, mouseY, id++);  //water
+                  break;
+        case 2:  elements[mouseX][mouseY] = new Wall(mouseX, mouseY, pmouseX, pmouseY, id++);  //wall
+                  break;
+        case 3:  //eraser
+                  break;
+      }
     }
-    int random = (int )(Math.random() * 10 - 5);
-    switch(brushType){
-      case 0:  elements.add(new Element(mouseX+random, mouseY, id++));  //sand
-                break;
-      case 1:  elements.add(new Water(mouseX+random, mouseY, id++));  //water
-                break;
-      case 2:  elements.add(new Wall(mouseX, mouseY, pmouseX, pmouseY, id++));  //wall
-                break;
-      case 3:  //eraser
-                break;
-    }
-      
-  }else if(playing)
+  }
+  else if(playing)
   {
     sandRush.play();
     playing = false;
   }
-  for(int i = 0; i < elements.size(); i++)
+  for(int i = 0; i < 501; i++)
+  {
+    for(int j = 500; j >= 0; j--)
     {
-      Element ele = elements.get(i);
-      ele.gravity();
-      ele.display();
+      if(elements[i][j]!=null)
+      {
+        Element ele = elements[i][j];
+        ele.gravity();
+        ele.display();
+      }
     }
+  }
 }
 
 void controlEvent(ControlEvent theEvent) {
@@ -112,9 +121,9 @@ void controlEvent(ControlEvent theEvent) {
 class Element //Elements are each block. Just a generic block here, figured we could add inherited objects for the different types
 {
   color c;
-  float xPos;
-  float yPos;
-  float gSpeed = 2;
+  int xPos;
+  int yPos;
+  int gSpeed = 2;
   boolean settled;
   boolean settledF;
   int identification;
@@ -140,55 +149,61 @@ class Element //Elements are each block. Just a generic block here, figured we c
   
   void gravity() 
   { 
+    if(!settled && yPos >= height-1) //Stops a block if it hits the bottom of the screen
+    {
+      settled = true;
+    }
     //print(brushType);
     Random random = new Random();
     if(!settled) //Moves the block down at gSpeed's speed
     { 
+      int oldyPos = yPos;
       yPos = yPos + gSpeed;
+      elements[xPos][yPos] = elements[xPos][oldyPos];
+      elements[xPos][oldyPos] = null;
     }
     if(!settledF) //Final settle after colliding with another block
     {
-      for(int i = 0; i < elements.size()-1; i++)
+      if(elements[xPos][yPos]!=null)
       {
-        if(yPos == elements.get(i).yPos && xPos == elements.get(i).xPos && identification != elements.get(i).identification)
+        Element ele = elements[xPos][yPos];
+        if(ele.settled && identification != ele.identification)
         {
-          if(elements.get(i).settled)
-          {
-            int randomDir = random.nextInt(7) - 3;
-            boolean stick=false;
-            boolean stickReverse = false;
-            if(randomDir != 0){
-              for(int j = 0; j < elements.size()-1; j++)
-              {
-                if(elements.get(j).settled && yPos == elements.get(j).yPos)
-                {
-                  if((xPos+randomDir) == elements.get(j).xPos)
-                    stick = true;
-                  else if((xPos-randomDir) == elements.get(j).xPos)
-                    stickReverse = true;
-                }
-              }
-            }else{
+          int randomDir = random.nextInt(7) - 3;
+          boolean stick=false;
+          boolean stickReverse = false;
+          if(randomDir != 0){
+            if(elements[xPos+randomDir][yPos]!=null && elements[xPos+randomDir][yPos].settled)
               stick = true;
+            else if(elements[xPos-randomDir][yPos]!=null && elements[xPos-randomDir][yPos].settled)
               stickReverse = true;
-            }
-            if(!stick){
-              xPos+=randomDir;
-            }else if(!stickReverse){
-              xPos-=randomDir;
-            }else{
-              yPos-=1;
-              settledF = true;
-              settled = true;
-            }
           }else{
-            //remove the element?
+            stick = true;
+            stickReverse = true;
           }
+          if(!stick){
+            int oldxPos = xPos;
+            xPos+=randomDir;
+            elements[xPos][yPos] = elements[oldxPos][yPos];
+            elements[oldxPos][yPos] = null;
+          }else if(!stickReverse){
+            int oldxPos = xPos;
+            xPos-=randomDir;
+            elements[xPos][yPos] = elements[oldxPos][yPos];
+            elements[oldxPos][yPos] = null;
+          }else{
+            int oldyPos = yPos;
+            yPos -= 1;
+            elements[xPos][yPos] = elements[xPos][oldyPos];
+            elements[xPos][oldyPos] = null;
+            settledF = true;
+            settled = true;
+          }
+        }else{
+          //remove the element?
         }
       }
     } 
-    if(yPos >= height-1) //Stops a block if it hits the bottom of the screen
-      settled = true;
   }
 }
 
