@@ -71,15 +71,19 @@ void draw()
         playing = true;
       }
       int random = (int )(Math.random() * 10 - 5);
-      switch(brushType){
-        case 0:  elements[mouseX+random][mouseY] = new Element(mouseX+random, mouseY, id++);  //sand
-                  break;
-        case 1:  elements[mouseX][mouseY] = new Water(mouseX, mouseY, id++);  //water
-                  break;
-        case 2:  elements[mouseX][mouseY] = new Wall(mouseX, mouseY, pmouseX, pmouseY, id++);  //wall
-                  break;
-        case 3:  //eraser
-                  break;
+      if((mouseX + random) > 0)
+      {
+
+        switch(brushType){
+          case 0:  elements[mouseX+random][mouseY] = new Element(mouseX+random, mouseY, id++);  //sand
+                    break;
+          case 1:  elements[mouseX][mouseY] = new Water(mouseX, mouseY, id++);  //water
+                    break;
+          case 2:  elements[mouseX][mouseY] = new Wall(mouseX, mouseY, pmouseX, pmouseY, id++);  //wall
+                    break;
+          case 3:  //eraser
+                    break;
+        }
       }
     }
   }
