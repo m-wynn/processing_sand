@@ -221,7 +221,7 @@ class Wall extends Element
   }
   void display()
   {
-    stroke(0);
+    stroke(255, 0, 0);
     fill(0);
     line(xPos,yPos,xEndPos,yEndPos);
   }
@@ -238,5 +238,3 @@ class Water extends Element
   {
     super(xP,yP,ident);
   }
-
-}
