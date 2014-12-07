@@ -28,7 +28,7 @@ Brush types:
 void setup()
 {
   size(500,500);
-  elements = new Element[502][502];
+  elements = new Element[501][501];
   cp5 = new ControlP5(this);
   // create a DropdownList
   list = cp5.addDropdownList("Material")
@@ -81,7 +81,15 @@ void draw()
                     break;
           case 2:  elements[mouseX][mouseY] = new Wall(mouseX, mouseY, pmouseX, pmouseY, id++);  //wall
                     break;
-          case 3:  //eraser
+          case 3:  elements[mouseX][mouseY] = null;  //eraser
+                   elements[mouseX+1][mouseY] = null; 
+                   elements[mouseX-1][mouseY] = null;
+                   elements[mouseX+1][mouseY+1] = null; 
+                   elements[mouseX-1][mouseY+1] = null;
+                   elements[mouseX+1][mouseY-1] = null; 
+                   elements[mouseX-1][mouseY-1] = null;    
+                   elements[mouseX][mouseY-1] = null; 
+                   elements[mouseX][mouseY+1] = null; 
                     break;
         }
       }
@@ -92,9 +100,9 @@ void draw()
     sandRush.play();
     playing = false;
   }
-  for(int i = 0; i < 501; i++)
+  for(int i = 0; i < 500; i++)
   {
-    for(int j = 500; j >= 0; j--)
+    for(int j = 499; j >= 0; j--)
     {
       if(elements[i][j]!=null)
       {
@@ -122,7 +130,7 @@ void controlEvent(ControlEvent theEvent) {
   }
 }
 
-class Element //Elements are each block. Just a generic block here, figured we could add inherited objects for the different types
+class Element //Elements are each block. Just a generic block of sand type
 {
   color c;
   int xPos;
@@ -163,10 +171,30 @@ class Element //Elements are each block. Just a generic block here, figured we c
     { 
       int oldyPos = yPos;
       yPos = yPos + gSpeed;
+      if(elements[xPos][yPos] != null)
+      {
+        elements[xPos][yPos] = elements[xPos][yPos];
+      }
+      else
+      {
       elements[xPos][yPos] = elements[xPos][oldyPos];
       elements[xPos][oldyPos] = null;
+      }
     }
-    if(!settledF) //Final settle after colliding with another block
+    if(!settledF)
+    {
+      if(elements[xPos][yPos] != null)
+      {
+        Element ele = elements[xPos][yPos];
+        if(ele.settled && identification != ele.identification)
+        {
+          ele = elements[xPos][(yPos-1)];
+          settledF = true;
+          settled = true;
+        }
+      }
+    }
+    /*if(!settledF) //Final settle after colliding with another block
     {
       if(elements[xPos][yPos]!=null)
       {
@@ -207,7 +235,7 @@ class Element //Elements are each block. Just a generic block here, figured we c
           //remove the element?
         }
       }
-    } 
+    }*/ 
   }
 }
 
