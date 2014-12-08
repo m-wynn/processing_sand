@@ -210,56 +210,52 @@ class Element //Elements are each block. Just a generic block of sand type
             if(negative)
             {
               randomDirMax*=-1;
+              boolean canGoPositive = true;
+              boolean canGoNegative = true;
               for(randomDir = 0; randomDir > randomDirMax; randomDir--){
-                if((xPos+randomDir) > 0 && (xPos+randomDir) < 500){
+                if(canGoPositive && (xPos+randomDir) > 0 && (xPos+randomDir) < 500){
                   if(elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled)
                   {
                     stick = false;
                     break;
                   }
                   else if(elements[xPos+randomDir][newyPos]!=null && cannotPass(elements[xPos+randomDir][newyPos].getClass().getName())){    //we don't want to leak through walls
-                    print("We've run into a wall");
-                    stick = true;
-                    break;
+                    canGoPositive = false;
                   }
                 }
-                if((xPos-randomDir) > 0 && (xPos-randomDir) < 500){
+                if(canGoNegative && (xPos-randomDir) > 0 && (xPos-randomDir) < 500){
                   if(elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled)
                   {
                     stickReverse = false;
                     break;
                   }else if(elements[xPos-randomDir][newyPos]!=null && cannotPass(elements[xPos-randomDir][newyPos].getClass().getName())){
-                    stick=true;
-                    print("We've run into a wall");
-                    break;
+                    canGoNegative = false;
                   }
                 }
               }
             }
             else
             {
+              boolean canGoPositive = true;
+              boolean canGoNegative = true;
               for(randomDir = 0; randomDir < randomDirMax; randomDir++){
-                if((xPos+randomDir) > 0 && (xPos+randomDir) < 500){
+                if(canGoPositive && (xPos+randomDir) > 0 && (xPos+randomDir) < 500){
                   if(elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled)
                   {
                     stick = false;
                     break;
                   }
                   else if(elements[xPos+randomDir][newyPos]!=null && cannotPass(elements[xPos+randomDir][newyPos].getClass().getName())){    //we don't want to leak through walls
-                    print("We've run into a wall");
-                    stick = true;
-                    break;
+                    canGoPositive = false;
                   }
                 }
-                if((xPos-randomDir) > 0 && (xPos-randomDir) < 500){
+                if(canGoNegative && (xPos-randomDir) > 0 && (xPos-randomDir) < 500){
                   if(elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled)
                   {
                     stickReverse = false;
                     break;
                   }else if(elements[xPos-randomDir][newyPos]!=null && cannotPass(elements[xPos-randomDir][newyPos].getClass().getName())){
-                    stick=true;
-                    print("We've run into a wall");
-                    break;
+                    canGoNegative = false;
                   }
                 }
               }
@@ -315,7 +311,7 @@ class Water extends Element
 {
   Water(int xP, int yP, int ident)
   {
-    super(xP,yP,ident, 16);
+    super(xP,yP,ident, 30);
   }
   void display()
   {
@@ -323,5 +319,11 @@ class Water extends Element
     fill(0);
     rectMode(CENTER);
     rect(xPos,yPos,1,1);
+  }
+  boolean cannotPass(String className){
+    if(className == "processing_sand$Wall" || className == "processing_sand$Element")
+      return true;
+    else
+      return false;
   }
 }
