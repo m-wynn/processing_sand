@@ -14,28 +14,32 @@ DropdownList list;
 Minim minim;
 AudioPlayer sandRush;
 AudioPlayer waterRush;
+AudioOutput out;
+PinkNoise pn;
 
 Element[][] elements;
 int id = 0;
 int brushType = 0;
 int playing;
+
+float cur_amp=.2;
 /*
 Brush types:
-0: Sand
-1: Water
-2: Wall
-3: Eraser
-*/
+ 0: Sand
+ 1: Water
+ 2: Wall
+ 3: Eraser
+ */
 void setup()
 {
   frameRate(120);    //set this to slow things down
-  size(500,500);
+  size(500, 500);
   elements = new Element[501][501];
   cp5 = new ControlP5(this);
   // create a DropdownList
   list = cp5.addDropdownList("Material")
-          .setPosition(400, 20);
-          
+    .setPosition(400, 20);
+
   list.setBackgroundColor(color(190));
   list.setItemHeight(20);
   list.setBarHeight(15);
@@ -49,7 +53,7 @@ void setup()
   list.addItem("Eraser", 3);
   list.setColorBackground(color(60));
   list.setColorActive(color(255, 128));
-  
+
   minim = new Minim(this);
   sandRush = minim.loadFile("sandrush.mp3", 2048);
   waterRush = minim.loadFile("waterrush.mp3", 2048);
@@ -61,59 +65,63 @@ void draw()
   background(255);
   if (mousePressed)
   {
-    if(mouseY > 0 && mouseX > 0 && mouseY < 500 && mouseX < 500)
+    if (mouseY > 0 && mouseX > 0 && mouseY < 500 && mouseX < 500 && !(mouseX > 400 && mouseY < 100))
     {
-      if(playing== -1)
+      if (playing== -1)
       {
-        if(brushType == 0){
-          sandRush.loop();
+        if (brushType == 0) {
+          pn = new PinkNoise(cur_amp);
+          out = minim.getLineOut();
+          out.addSignal(pn);
           playing = 0;
-        }
-        else if (brushType == 1)
+        } else if (brushType == 1)
         {
           waterRush.loop();
           playing = 1;
         }
       }
       int random = (int )(Math.random() * 10 - 5);
-      if((mouseX + random) > 0 && (mouseX + random) < 500)
+      if ((mouseX + random) > 0 && (mouseX + random) < 500)
       {
 
-        switch(brushType){
-          case 0:  elements[mouseX+random][mouseY] = new Element(mouseX+random, mouseY, id++, 4);  //sand
-                    break;
-          case 1:  elements[mouseX+random][mouseY] = new Water((mouseX+random), mouseY, id++);  //water
-                    break;
-          case 2:   if(pmouseX > 0 && pmouseX < 500 && pmouseY > 0 && pmouseY < 500)
-                      generateWall(mouseX, mouseY, pmouseX, pmouseY, id++);  //wall
-                    break;
-          case 3:  elements[mouseX][mouseY] = null;  //eraser
-                   elements[mouseX+1][mouseY] = null; 
-                   elements[mouseX-1][mouseY] = null;
-                   elements[mouseX+1][mouseY+1] = null; 
-                   elements[mouseX-1][mouseY+1] = null;
-                   elements[mouseX+1][mouseY-1] = null; 
-                   elements[mouseX-1][mouseY-1] = null;    
-                   elements[mouseX][mouseY-1] = null; 
-                   elements[mouseX][mouseY+1] = null; 
-                    break;
+        switch(brushType) {
+        case 0:  
+          elements[mouseX+random][mouseY] = new Element(mouseX+random, mouseY, id++, 4);  //sand
+          break;
+        case 1:  
+          elements[mouseX+random][mouseY] = new Water((mouseX+random), mouseY, id++);  //water
+          break;
+        case 2:   
+          if (pmouseX > 0 && pmouseX < 500 && pmouseY > 0 && pmouseY < 500)
+            generateWall(mouseX, mouseY, pmouseX, pmouseY, id++);  //wall
+          break;
+        case 3:  
+          elements[mouseX][mouseY] = null;  //eraser
+          elements[mouseX+1][mouseY] = null; 
+          elements[mouseX-1][mouseY] = null;
+          elements[mouseX+1][mouseY+1] = null; 
+          elements[mouseX-1][mouseY+1] = null;
+          elements[mouseX+1][mouseY-1] = null; 
+          elements[mouseX-1][mouseY-1] = null;    
+          elements[mouseX][mouseY-1] = null; 
+          elements[mouseX][mouseY+1] = null; 
+          break;
         }
       }
     }
-  }
-  else if(playing >= 0)
+  } else if (playing >= 0)
   {
-    if(playing == 0)
-       sandRush.play();
+    if (playing == 0)
+      out.clearSignals();
     else if (playing == 1)
-       waterRush.play();
+      waterRush.play();
     playing = -1;
   }
-  for(int i = 0; i < 500; i++)
+  for (int i = 0; i < 500; i++)
   {
-    for(int j = 499; j >= 0; j--)
+    for (int j = 499; j >= 0; j--)
     {
-      if(elements[i][j]!=null)
+      if (elements[i][j]!=null)
       {
         Element ele = elements[i][j];
         ele.gravity();
@@ -136,15 +144,15 @@ void controlEvent(ControlEvent theEvent) {
   }
 }
 
-void generateWall(int beginX, int beginY, int endX, int endY, int id){
-  if(beginX > endX){
+void generateWall(int beginX, int beginY, int endX, int endY, int id) {
+  if (beginX > endX) {
     int tempX = endX;
     endX = beginX;
     beginX = tempX;
   }
-  for(int x = beginX;  x<=endX; x++){
+  for (int x = beginX; x<=endX; x++) {
     int y;
-    if(endX==beginX)
+    if (endX==beginX)
       y = beginY;
     else
       y = int((endY-beginY)/(endX-beginX))*(x-beginX)+beginY;
@@ -164,11 +172,11 @@ class Element //Elements are each block. Just a generic block of sand type
   boolean settled;
   int identification;
   int frictionConstant;
-  
+
   Element()
   {
   }
-  
+
   Element(int xP, int yP, int ident, int fC)
   {
     xPos = xP;
@@ -176,120 +184,116 @@ class Element //Elements are each block. Just a generic block of sand type
     identification = ident;
     frictionConstant = fC;
   }
-  
+
   void display()
   {
     stroke(0);
     fill(0);
     rectMode(CENTER);
-    rect(xPos,yPos,1,1);
+    rect(xPos, yPos, 1, 1);
   }
-  
+
   void gravity() 
   {
-    if(settled && yPos < height-1 && elements[xPos][(yPos+gSpeed)] == null)    //check for eraser
+    if (settled && yPos < height-1 && elements[xPos][(yPos+gSpeed)] == null)    //check for eraser
       settled = false;
-    if(!settled && yPos >= height-1) //Stops a block if it hits the bottom of the screen
+    if (!settled && yPos >= height-1) //Stops a block if it hits the bottom of the screen
     {
       settled = true;
     }
     //print(brushType);
     Random random = new Random();
-    if(!settled) //Moves the block down at gSpeed's speed
+    if (!settled) //Moves the block down at gSpeed's speed
     { 
       int newyPos = yPos + gSpeed;
-      if(elements[xPos][newyPos] == null)    //There is free space directly below the block.
+      if (elements[xPos][newyPos] == null)    //There is free space directly below the block.
       {
         elements[xPos][newyPos] = elements[xPos][yPos];
         elements[xPos][yPos] = null;
         yPos = newyPos;
-      }
-      else  //There is a block directly below the block
+      } else  //There is a block directly below the block
       {
         Element ele = elements[xPos][newyPos];    //this is the block that we're in conflict with.
-        if(ele.settled)    //the block directly below our block is settled.  Since we're processing one block at a time, this is important
+        if (ele.settled)    //the block directly below our block is settled.  Since we're processing one block at a time, this is important
         {
-          int randomDirMax = ceil(pow(random.nextInt(frictionConstant),.2)*frictionConstant);
+          int randomDirMax = ceil(pow(random.nextInt(frictionConstant), .2)*frictionConstant);
           boolean negative = Math.random() < 0.5;
           boolean stick = true;
           boolean stickReverse = true;
           int randomDir = 0;
-          if(randomDirMax != 0){    //if randomDir is 0, then we'd go straight down
-            if(negative)
+          if (randomDirMax != 0) {    //if randomDir is 0, then we'd go straight down
+            if (negative)
             {
               randomDirMax*=-1;
               boolean canGoPositive = true;
               boolean canGoNegative = true;
-              for(randomDir = 0; randomDir > randomDirMax; randomDir--){
-                if(canGoPositive && (xPos+randomDir) > 0 && (xPos+randomDir) < 500){
-                  if(elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled)
+              for (randomDir = 0; randomDir > randomDirMax; randomDir--) {
+                if (canGoPositive && (xPos+randomDir) > 0 && (xPos+randomDir) < 500) {
+                  if (elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled)
                   {
                     stick = false;
                     break;
-                  }
-                  else if(elements[xPos+randomDir][newyPos]!=null && cannotPass(elements[xPos+randomDir][newyPos].getClass().getName())){    //we don't want to leak through walls
+                  } else if (elements[xPos+randomDir][newyPos]!=null && cannotPass(elements[xPos+randomDir][newyPos].getClass().getName())) {    //we don't want to leak through walls
                     canGoPositive = false;
                   }
                 }
-                if(canGoNegative && (xPos-randomDir) > 0 && (xPos-randomDir) < 500){
-                  if(elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled)
+                if (canGoNegative && (xPos-randomDir) > 0 && (xPos-randomDir) < 500) {
+                  if (elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled)
                   {
                     stickReverse = false;
                     break;
-                  }else if(elements[xPos-randomDir][newyPos]!=null && cannotPass(elements[xPos-randomDir][newyPos].getClass().getName())){
+                  } else if (elements[xPos-randomDir][newyPos]!=null && cannotPass(elements[xPos-randomDir][newyPos].getClass().getName())) {
                     canGoNegative = false;
                   }
                 }
               }
-            }
-            else
+            } else
             {
               boolean canGoPositive = true;
               boolean canGoNegative = true;
-              for(randomDir = 0; randomDir < randomDirMax; randomDir++){
-                if(canGoPositive && (xPos+randomDir) > 0 && (xPos+randomDir) < 500){
-                  if(elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled)
+              for (randomDir = 0; randomDir < randomDirMax; randomDir++) {
+                if (canGoPositive && (xPos+randomDir) > 0 && (xPos+randomDir) < 500) {
+                  if (elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled)
                   {
                     stick = false;
                     break;
-                  }
-                  else if(elements[xPos+randomDir][newyPos]!=null && cannotPass(elements[xPos+randomDir][newyPos].getClass().getName())){    //we don't want to leak through walls
+                  } else if (elements[xPos+randomDir][newyPos]!=null && cannotPass(elements[xPos+randomDir][newyPos].getClass().getName())) {    //we don't want to leak through walls
                     canGoPositive = false;
                   }
                 }
-                if(canGoNegative && (xPos-randomDir) > 0 && (xPos-randomDir) < 500){
-                  if(elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled)
+                if (canGoNegative && (xPos-randomDir) > 0 && (xPos-randomDir) < 500) {
+                  if (elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled)
                   {
                     stickReverse = false;
                     break;
-                  }else if(elements[xPos-randomDir][newyPos]!=null && cannotPass(elements[xPos-randomDir][newyPos].getClass().getName())){
+                  } else if (elements[xPos-randomDir][newyPos]!=null && cannotPass(elements[xPos-randomDir][newyPos].getClass().getName())) {
                     canGoNegative = false;
                   }
                 }
               }
             }
           }
-          if(!stick){
+          if (!stick) {
             int oldxPos = xPos;
             xPos+=randomDir;
             elements[xPos][newyPos] = elements[oldxPos][yPos];
             elements[oldxPos][yPos] = null;
             yPos = newyPos;
-          }else if(!stickReverse){
+          } else if (!stickReverse) {
             int oldxPos = xPos;
             xPos-=randomDir;
             elements[xPos][newyPos] = elements[oldxPos][yPos];
             elements[oldxPos][yPos] = null;
             yPos = newyPos;
-          }else{
+          } else {
             settled = true;
           }
         }
       }
     }
   }
-  boolean cannotPass(String className){
-    if(className == "processing_sand$Wall")
+  boolean cannotPass(String className) {
+    if (className == "processing_sand$Wall")
       return true;
     else
       return false;
@@ -300,14 +304,14 @@ class Wall extends Element
 {
   Wall(int xP, int yP, int ident)
   {
-    super(xP,yP,ident, 0);
+    super(xP, yP, ident, 0);
   }
   void display()
   {
-    stroke(120,120,120);
+    stroke(120, 120, 120);
     fill(0);
     rectMode(CENTER);
-    rect(xPos,yPos,1,1);
+    rect(xPos, yPos, 1, 1);
   }
   void gravity() 
   {
@@ -319,19 +323,20 @@ class Water extends Element
 {
   Water(int xP, int yP, int ident)
   {
-    super(xP,yP,ident, 30);
+    super(xP, yP, ident, 50);
   }
   void display()
   {
-    stroke(0,0,255);
+    stroke(0, 0, 255);
     fill(0);
     rectMode(CENTER);
-    rect(xPos,yPos,1,1);
+    rect(xPos, yPos, 1, 1);
   }
-  boolean cannotPass(String className){
-    if(className == "processing_sand$Wall" || className == "processing_sand$Element")
+  boolean cannotPass(String className) {
+    if (className == "processing_sand$Wall" || className == "processing_sand$Element")
       return true;
     else
       return false;
   }
 }
+
