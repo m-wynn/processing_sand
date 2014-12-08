@@ -84,7 +84,8 @@ void draw()
                     break;
           case 1:  elements[mouseX+random][mouseY] = new Water((mouseX+random), mouseY, id++);  //water
                     break;
-          case 2:  generateWall(mouseX, mouseY, pmouseX, pmouseY, id++);  //wall
+          case 2:   if(pmouseX > 0 && pmouseX < 500 && pmouseY > 0 && pmouseY < 500)
+                      generateWall(mouseX, mouseY, pmouseX, pmouseY, id++);  //wall
                     break;
           case 3:  elements[mouseX][mouseY] = null;  //eraser
                    elements[mouseX+1][mouseY] = null; 
@@ -303,7 +304,7 @@ class Wall extends Element
   }
   void display()
   {
-    stroke(0,0,255);
+    stroke(120,120,120);
     fill(0);
     rectMode(CENTER);
     rect(xPos,yPos,1,1);
