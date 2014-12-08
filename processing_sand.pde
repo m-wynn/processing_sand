@@ -9,6 +9,7 @@ import java.util.Random;
 import controlP5.*;
 
 ControlP5 cp5;
+Slider redSlider;
 DropdownList list;
 
 Minim minim;
@@ -21,6 +22,10 @@ Element[][] elements;
 int id = 0;
 int brushType = 0;
 int playing;
+
+int redValue;
+int blueValue;
+int greenValue;
 
 float cur_amp=.2;
 /*
@@ -39,6 +44,21 @@ void setup()
   // create a DropdownList
   list = cp5.addDropdownList("Material")
     .setPosition(400, 20);
+  cp5.addSlider("redValue")
+     .setPosition(400,130)
+     .setSize(20,200)
+     .setValue(237)
+     .setRange(0,255);
+  cp5.addSlider("greenValue")
+     .setPosition(430,130)
+     .setSize(20,200)
+     .setValue(200)
+     .setRange(0,255);
+   cp5.addSlider("blueValue")
+     .setPosition(460,130)
+     .setSize(20,200)
+     .setValue(83)
+     .setRange(0,255);
 
   list.setBackgroundColor(color(190));
   list.setItemHeight(20);
@@ -86,9 +106,11 @@ void draw()
 
         switch(brushType) {
         case 0:  
-          elements[mouseX+random][mouseY] = new Sand(mouseX+random, mouseY, id++, 4);  //sand
+          if(elements[mouseX+random][mouseY] == null)
+            elements[mouseX+random][mouseY] = new Sand(mouseX+random, mouseY, id++, 4, redValue, greenValue, blueValue);  //sand
           break;
         case 1:  
+          if(elements[mouseX+random][mouseY] == null)
           elements[mouseX+random][mouseY] = new Water((mouseX+random), mouseY, id++);  //water
           break;
         case 2:   
@@ -172,6 +194,9 @@ class Element //Elements are each block. Just a generic block of sand type
   boolean settled;
   int identification;
   int frictionConstant;
+  int red;
+  int green;
+  int blue;
 
   Element()
   {
@@ -325,13 +350,16 @@ class Wall extends Element
 }
 class Sand extends Element
 {
-  Sand(int xP, int yP, int ident, int fC)
+  Sand(int xP, int yP, int ident, int fC, int rV, int gV, int bV)
   {
     super(xP, yP, ident, fC);
+    red = rV;
+    green = gV;
+    blue = bV;
   }
   void display()
   {
-    stroke(237, 200, 85);
+    stroke(red, green, blue);
     fill(0);
     rectMode(CENTER);
     rect(xPos, yPos, 1, 1);
