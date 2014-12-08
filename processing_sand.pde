@@ -217,6 +217,8 @@ class Element //Elements are each block. Just a generic block of sand type
       } else  //There is a block directly below the block
       {
         Element ele = elements[xPos][newyPos];    //this is the block that we're in conflict with.
+    
+        
         if (ele.settled)    //the block directly below our block is settled.  Since we're processing one block at a time, this is important
         {
           int randomDirMax = getRandomMax();
@@ -349,7 +351,7 @@ class Water extends Element
     rect(xPos, yPos, 1, 1);
   }
   boolean cannotPass(String className) {
-    if (className == "processing_sand$Wall" || className == "processing_sand$Element")
+    if (className == "processing_sand$Wall" || className == "processing_sand$Sand")
       return true;
     else
       return false;
@@ -359,4 +361,3 @@ class Water extends Element
     return 100;
   }
 }
-
