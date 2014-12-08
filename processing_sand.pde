@@ -23,9 +23,9 @@ int id = 0;
 int brushType = 0;
 int playing;
 
-int redValue;
-int blueValue;
-int greenValue;
+int red;
+int blue;
+int green;
 
 float cur_amp=.2;
 /*
@@ -38,34 +38,33 @@ Brush types:
 void setup()
 {
   frameRate(120);    //set this to slow things down
-  size(500, 500);
+  size(600, 500);
   elements = new Element[501][501];
   cp5 = new ControlP5(this);
   // create a DropdownList
   list = cp5.addDropdownList("Material")
-    .setPosition(400, 20);
-  cp5.addSlider("redValue")
-     .setPosition(400,130)
+     .setPosition(500, 20);
+  cp5.addSlider("red")
+     .setPosition(510,130)
      .setSize(20,200)
      .setValue(237)
      .setRange(0,255)
-     .setColorForeground(color(255, 0, 0))
-     .setColorActive(color(255, 0, 0));
-  cp5.addSlider("greenValue")
-     .setPosition(430,130)
+     .setColorForeground(color(200, 0, 0))
+     .setColorActive(color(200, 0, 0));
+  cp5.addSlider("green")
+     .setPosition(540,130)
      .setSize(20,200)
      .setValue(200)
      .setRange(0,255)
-     .setColorForeground(color(0, 255, 0))
-     .setColorActive(color(0, 255, 0));
-   cp5.addSlider("blueValue")
-     .setPosition(460,130)
+     .setColorForeground(color(0, 200, 0))
+     .setColorActive(color(0, 200, 0));
+   cp5.addSlider("blue")
+     .setPosition(570,130)
      .setSize(20,200)
      .setValue(83)
      .setRange(0,255)
-     .setColorForeground(color(0, 0, 255))
-     .setColorActive(color(0, 0, 255));
-
+     .setColorForeground(color(0, 0, 200))
+     .setColorActive(color(0, 0, 200));
   list.setBackgroundColor(color(190));
   list.setItemHeight(20);
   list.setBarHeight(15);
@@ -89,9 +88,11 @@ void setup()
 void draw()
 {
   background(255);
+  fill(0);
+  rectMode(CORNER);
+  rect(500, 0, 500,500);
   if (mousePressed)
   {
-    print(mouseX + "\t");
     if (mouseY > 0 && mouseX > 0 && mouseY < 500 && mouseX < 500 && !(mouseX > 400 && mouseY < 100))
     {
       if (playing== -1)
@@ -114,7 +115,7 @@ void draw()
         switch(brushType) {
         case 0:  
           if(elements[mouseX+random][mouseY] == null)
-            elements[mouseX+random][mouseY] = new Sand(mouseX+random, mouseY, id++, 6, redValue, greenValue, blueValue);  //sand
+            elements[mouseX+random][mouseY] = new Sand(mouseX+random, mouseY, id++, 6, red, green, blue);  //sand
           break;
         case 1:  
           if(elements[mouseX+random][mouseY] == null)
@@ -219,7 +220,7 @@ class Element //Elements are each block. Just a generic block of sand type
 
   void display()
   {
-    stroke(0);
+    noStroke();
     fill(0);
     rectMode(CENTER);
     rect(xPos, yPos, 1, 1);
