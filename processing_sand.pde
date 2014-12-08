@@ -27,6 +27,7 @@ Brush types:
 */
 void setup()
 {
+  //frameRate(10);    //set this to slow things down
   size(500,500);
   elements = new Element[501][501];
   cp5 = new ControlP5(this);
@@ -77,7 +78,7 @@ void draw()
         switch(brushType){
           case 0:  elements[mouseX+random][mouseY] = new Element(mouseX+random, mouseY, id++);  //sand
                     break;
-          case 1:  elements[mouseX][mouseY] = new Water(mouseX, mouseY, id++);  //water
+          case 1:  elements[mouseX][mouseY] = new Water(mouseX+(random/2), mouseY, id++);  //water
                     break;
           case 2:  elements[mouseX][mouseY] = new Wall(mouseX, mouseY, pmouseX, pmouseY, id++);  //wall
                     break;
@@ -124,9 +125,6 @@ void controlEvent(ControlEvent theEvent) {
   if (theEvent.isGroup()) {
     // check if the Event was triggered from a ControlGroup
     brushType = (int) theEvent.getGroup().getValue();
-    print(brushType);
-  }else{
-    print(theEvent.getGroup().toString());
   }
 }
 
@@ -135,10 +133,10 @@ class Element //Elements are each block. Just a generic block of sand type
   color c;
   int xPos;
   int yPos;
-  int gSpeed = 2;
+  int gSpeed = 1;
   boolean settled;
-  boolean settledF;
   int identification;
+  int frictionConstant = 3;
   
   Element()
   {
@@ -169,73 +167,48 @@ class Element //Elements are each block. Just a generic block of sand type
     Random random = new Random();
     if(!settled) //Moves the block down at gSpeed's speed
     { 
-      int oldyPos = yPos;
-      yPos = yPos + gSpeed;
-      if(elements[xPos][yPos] != null)
+      int newyPos = yPos + gSpeed;
+      if(elements[xPos][newyPos] == null)    //There is free space directly below the block.
       {
-        elements[xPos][yPos] = elements[xPos][yPos];
+        elements[xPos][newyPos] = elements[xPos][yPos];
+        elements[xPos][yPos] = null;
+        yPos = newyPos;
       }
-      else
+      else  //There is a block directly below the block
       {
-      elements[xPos][yPos] = elements[xPos][oldyPos];
-      elements[xPos][oldyPos] = null;
-      }
-    }
-    if(!settledF)
-    {
-      if(elements[xPos][yPos] != null)
-      {
-        Element ele = elements[xPos][yPos];
-        if(ele.settled && identification != ele.identification)
+        Element ele = elements[xPos][newyPos];    //this is the block that we're in conflict with.
+        if(ele.settled)    //the block directly below our block is settled.  Since we're processing one block at a time, this is important
         {
-          ele = elements[xPos][(yPos-1)];
-          settledF = true;
-          settled = true;
-        }
-      }
-    }
-    /*if(!settledF) //Final settle after colliding with another block
-    {
-      if(elements[xPos][yPos]!=null)
-      {
-        Element ele = elements[xPos][yPos];
-        if(ele.settled && identification != ele.identification)
-        {
-          int randomDir = random.nextInt(7) - 3;
+          int randomDir = random.nextInt(frictionConstant*2+1) - frictionConstant;    //we can go left or right by 3.
           boolean stick=false;
           boolean stickReverse = false;
-          if(randomDir != 0){
-            if(elements[xPos+randomDir][yPos]!=null && elements[xPos+randomDir][yPos].settled)
+          if(randomDir != 0){    //if randomDir is 0, then we'd go straight down
+            if((xPos+randomDir) > 0 && (xPos+randomDir) < 500 && elements[xPos+randomDir][newyPos]!=null && elements[xPos+randomDir][newyPos].settled)
               stick = true;
-            else if(elements[xPos-randomDir][yPos]!=null && elements[xPos-randomDir][yPos].settled)
+            if((xPos-randomDir) > 0 && (xPos-randomDir) < 500 && elements[xPos-randomDir][newyPos]!=null && elements[xPos-randomDir][newyPos].settled)
               stickReverse = true;
           }else{
             stick = true;
-            stickReverse = true;
+            stickReverse=true;
           }
           if(!stick){
             int oldxPos = xPos;
             xPos+=randomDir;
-            elements[xPos][yPos] = elements[oldxPos][yPos];
+            elements[xPos][newyPos] = elements[oldxPos][yPos];
             elements[oldxPos][yPos] = null;
+            yPos = newyPos;
           }else if(!stickReverse){
             int oldxPos = xPos;
             xPos-=randomDir;
-            elements[xPos][yPos] = elements[oldxPos][yPos];
+            elements[xPos][newyPos] = elements[oldxPos][yPos];
             elements[oldxPos][yPos] = null;
+            yPos = newyPos;
           }else{
-            int oldyPos = yPos;
-            yPos -= 1;
-            elements[xPos][yPos] = elements[xPos][oldyPos];
-            elements[xPos][oldyPos] = null;
-            settledF = true;
             settled = true;
           }
-        }else{
-          //remove the element?
         }
       }
-    }*/ 
+    }
   }
 }
 
@@ -260,12 +233,12 @@ class Wall extends Element
   void gravity() 
   {
     settled = true;
-    settledF = true;
   }
 }
 
 class Water extends Element
 {
+  int frictionConstant = 12;
   Water(int xP, int yP, int ident)
   {
     super(xP,yP,ident);
