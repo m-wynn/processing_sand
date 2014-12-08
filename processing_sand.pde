@@ -13,11 +13,12 @@ DropdownList list;
 
 Minim minim;
 AudioPlayer sandRush;
+AudioPlayer waterRush;
 
 Element[][] elements;
 int id = 0;
 int brushType = 0;
-boolean playing;
+int playing;
 /*
 Brush types:
 0: Sand
@@ -51,25 +52,28 @@ void setup()
   
   minim = new Minim(this);
   sandRush = minim.loadFile("sandrush.mp3", 2048);
-  playing = false;
+  waterRush = minim.loadFile("waterrush.mp3", 2048);
+  playing = -1;
 }
 
 void draw()
 {
-  /*for(int i = 0; i < sandRush.bufferSize() - 1; i++)
-  {
-    line(i, 50 + sandRush.left.get(i)*50, i+1, 50 + sandRush.left.get(i+1)*50);
-    line(i, 150 + sandRush.right.get(i)*50, i+1, 150 + sandRush.right.get(i+1)*50);
-  }*/
   background(255);
   if (mousePressed)
   {
     if(mouseY > 0 && mouseX > 0 && mouseY < 500 && mouseX < 500)
     {
-      if(!playing && brushType == 0)
+      if(playing== -1)
       {
-        sandRush.loop();
-        playing = true;
+        if(brushType == 0){
+          sandRush.loop();
+          playing = 0;
+        }
+        else if (brushType == 1)
+        {
+          waterRush.loop();
+          playing = 1;
+        }
       }
       int random = (int )(Math.random() * 10 - 5);
       if((mouseX + random) > 0 && (mouseX + random) < 500)
@@ -96,10 +100,13 @@ void draw()
       }
     }
   }
-  else if(playing)
+  else if(playing >= 0)
   {
-    sandRush.play();
-    playing = false;
+    if(playing == 0)
+       sandRush.play();
+    else if (playing == 1)
+       waterRush.play();
+    playing = -1;
   }
   for(int i = 0; i < 500; i++)
   {
