@@ -65,6 +65,14 @@ void setup()
      .setRange(0,255)
      .setColorForeground(color(0, 0, 200))
      .setColorActive(color(0, 0, 200));
+  cp5.getController("red").getValueLabel().setVisible(false);
+  cp5.getController("green").getValueLabel().setVisible(false);
+  cp5.getController("blue").getValueLabel().setVisible(false);
+  
+  cp5.getController("red").getCaptionLabel().setVisible(false);
+  cp5.getController("green").getCaptionLabel().setVisible(false);
+  cp5.getController("blue").getCaptionLabel().setVisible(false);
+  
   list.setBackgroundColor(color(190));
   list.setItemHeight(20);
   list.setBarHeight(15);
