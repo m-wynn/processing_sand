@@ -86,7 +86,7 @@ void draw()
 
         switch(brushType) {
         case 0:  
-          elements[mouseX+random][mouseY] = new Element(mouseX+random, mouseY, id++, 4);  //sand
+          elements[mouseX+random][mouseY] = new Sand(mouseX+random, mouseY, id++, 4);  //sand
           break;
         case 1:  
           elements[mouseX+random][mouseY] = new Water((mouseX+random), mouseY, id++);  //water
@@ -321,7 +321,20 @@ class Wall extends Element
     settled = true;
   }
 }
-
+class Sand extends Element
+{
+  Sand(int xP, int yP, int ident, int fC)
+  {
+    super(xP, yP, ident, fC);
+  }
+  void display()
+  {
+    stroke(237, 200, 85);
+    fill(0);
+    rectMode(CENTER);
+    rect(xPos, yPos, 1, 1);
+  }
+}
 class Water extends Element
 {
   Water(int xP, int yP, int ident)
