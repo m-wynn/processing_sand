@@ -48,17 +48,23 @@ void setup()
      .setPosition(400,130)
      .setSize(20,200)
      .setValue(237)
-     .setRange(0,255);
+     .setRange(0,255)
+     .setColorForeground(color(255, 0, 0))
+     .setColorActive(color(255, 0, 0));
   cp5.addSlider("greenValue")
      .setPosition(430,130)
      .setSize(20,200)
      .setValue(200)
-     .setRange(0,255);
+     .setRange(0,255)
+     .setColorForeground(color(0, 255, 0))
+     .setColorActive(color(0, 255, 0));
    cp5.addSlider("blueValue")
      .setPosition(460,130)
      .setSize(20,200)
      .setValue(83)
-     .setRange(0,255);
+     .setRange(0,255)
+     .setColorForeground(color(0, 0, 255))
+     .setColorActive(color(0, 0, 255));
 
   list.setBackgroundColor(color(190));
   list.setItemHeight(20);
@@ -85,6 +91,7 @@ void draw()
   background(255);
   if (mousePressed)
   {
+    print(mouseX + "\t");
     if (mouseY > 0 && mouseX > 0 && mouseY < 500 && mouseX < 500 && !(mouseX > 400 && mouseY < 100))
     {
       if (playing== -1)
@@ -107,7 +114,7 @@ void draw()
         switch(brushType) {
         case 0:  
           if(elements[mouseX+random][mouseY] == null)
-            elements[mouseX+random][mouseY] = new Sand(mouseX+random, mouseY, id++, 4, redValue, greenValue, blueValue);  //sand
+            elements[mouseX+random][mouseY] = new Sand(mouseX+random, mouseY, id++, 6, redValue, greenValue, blueValue);  //sand
           break;
         case 1:  
           if(elements[mouseX+random][mouseY] == null)
@@ -221,7 +228,7 @@ class Element //Elements are each block. Just a generic block of sand type
   int getRandomMax()
   {
     Random random = new Random();
-    return ceil(pow(random.nextInt(frictionConstant), .2)*frictionConstant);
+    return ceil(pow(random.nextInt(frictionConstant*(500-yPos)), .3));
   }
   void gravity() 
   {
@@ -242,8 +249,6 @@ class Element //Elements are each block. Just a generic block of sand type
       } else  //There is a block directly below the block
       {
         Element ele = elements[xPos][newyPos];    //this is the block that we're in conflict with.
-    
-        
         if (ele.settled)    //the block directly below our block is settled.  Since we're processing one block at a time, this is important
         {
           int randomDirMax = getRandomMax();
@@ -338,8 +343,8 @@ class Wall extends Element
   }
   void display()
   {
-    stroke(120, 120, 120);
-    fill(0);
+    stroke(0);
+    fill(120, 120, 120);
     rectMode(CENTER);
     rect(xPos, yPos, 1, 1);
   }
@@ -359,8 +364,9 @@ class Sand extends Element
   }
   void display()
   {
-    stroke(red, green, blue);
-    fill(0);
+    noSmooth();
+    noStroke();
+    fill(red, green, blue);
     rectMode(CENTER);
     rect(xPos, yPos, 1, 1);
   }
@@ -373,8 +379,9 @@ class Water extends Element
   }
   void display()
   {
-    stroke(0, 0, 255);
-    fill(0);
+    noSmooth();
+    noStroke();
+    fill(0,0,255);
     rectMode(CENTER);
     rect(xPos, yPos, 1, 1);
   }
