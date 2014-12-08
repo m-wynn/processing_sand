@@ -80,7 +80,7 @@ void draw()
                     break;
           case 1:  elements[mouseX+random][mouseY] = new Water((mouseX+random), mouseY, id++);  //water
                     break;
-          case 2:  elements[mouseX][mouseY] = new Wall(mouseX, mouseY, pmouseX, pmouseY, id++);  //wall
+          case 2:  generateWall(mouseX, mouseY, pmouseX, pmouseY, id++);  //wall
                     break;
           case 3:  elements[mouseX][mouseY] = null;  //eraser
                    elements[mouseX+1][mouseY] = null; 
@@ -125,6 +125,21 @@ void controlEvent(ControlEvent theEvent) {
   if (theEvent.isGroup()) {
     // check if the Event was triggered from a ControlGroup
     brushType = (int) theEvent.getGroup().getValue();
+  }
+}
+
+void generateWall(int beginX, int beginY, int endX, int endY, int id){
+  if(beginX > endX){
+    int tempX = endX;
+    endX = beginX;
+    beginX = tempX;
+  }
+  for(int x = beginX;  x<endX; x++){
+    int y = int((endY-beginY)/(endX-beginX))*(x-beginX)+beginY;
+
+    elements[x][y] = new Wall(x, y, id);
+    elements[x][y-1] = new Wall(x, y-1, id);
+    elements[x-1][y-2] = new Wall(x-1, y-2, id);
   }
 }
 
@@ -207,12 +222,12 @@ class Element //Elements are each block. Just a generic block of sand type
             else
             {
               for(randomDir = 0; randomDir < randomDirMax; randomDir++){
-                if((xPos+randomDir) > 0 && (xPos+randomDir) < 500 && elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled)
+                if((xPos+randomDir) > 0 && (xPos+randomDir) < 500 && (elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled))
                 {
                   stick = false;
                   break;
                 }
-                if((xPos-randomDir) > 0 && (xPos-randomDir) < 500 && elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled)
+                if((xPos-randomDir) > 0 && (xPos-randomDir) < 500 && (elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled))
                 {
                   stickReverse = false;
                   break;
@@ -220,7 +235,6 @@ class Element //Elements are each block. Just a generic block of sand type
               }
             }
           }
-          print(randomDir + "|");
           if(!stick){
             int oldxPos = xPos;
             xPos+=randomDir;
@@ -244,21 +258,16 @@ class Element //Elements are each block. Just a generic block of sand type
 
 class Wall extends Element
 {
-  float xEndPos;
-  float yEndPos;
-  Wall(int xP, int yP, int x2P, int y2P, int ident)
+  Wall(int xP, int yP, int ident)
   {
-    xPos = xP;
-    yPos = yP;
-    xEndPos = x2P;
-    yEndPos = y2P;
-    identification = ident;
+    super(xP,yP,ident, 0);
   }
   void display()
   {
-    stroke(255, 0, 0);
+    stroke(0,0,255);
     fill(0);
-    line(xPos,yPos,xEndPos,yEndPos);
+    rectMode(CENTER);
+    rect(xPos,yPos,1,1);
   }
   void gravity() 
   {
