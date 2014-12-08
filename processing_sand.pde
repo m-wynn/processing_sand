@@ -117,6 +117,7 @@ void draw()
         }
       }
       int random = (int )(Math.random() * 10 - 5);
+      int random2 = (int )(Math.random() * 10 - 5);
       if ((mouseX + random) > 0 && (mouseX + random) < 500)
       {
 
@@ -124,6 +125,8 @@ void draw()
         case 0:  
           if(elements[mouseX+random][mouseY] == null)
             elements[mouseX+random][mouseY] = new Sand(mouseX+random, mouseY, id++, 6, red, green, blue);  //sand
+          if(elements[mouseX+random2][mouseY] == null)
+            elements[mouseX+random2][mouseY] = new Sand(mouseX+random2, mouseY, id++, 6, red, green, blue);
           break;
         case 1:  
           if(elements[mouseX+random][mouseY] == null)
@@ -142,7 +145,18 @@ void draw()
           elements[mouseX+1][mouseY-1] = null; 
           elements[mouseX-1][mouseY-1] = null;    
           elements[mouseX][mouseY-1] = null; 
-          elements[mouseX][mouseY+1] = null; 
+          elements[mouseX][mouseY+1] = null;
+          for (int i = 0; i < 500; i++)
+          {
+            for (int j = 499; j >= 0; j--)
+            {
+              if (elements[i][j]!=null)
+              {
+                Element ele = elements[i][j];
+                ele.settled = false;
+              }
+            }
+          }
           break;
         }
       }
