@@ -27,7 +27,7 @@ Brush types:
 */
 void setup()
 {
-  //frameRate(10);    //set this to slow things down
+  frameRate(120);    //set this to slow things down
   size(500,500);
   elements = new Element[501][501];
   cp5 = new ControlP5(this);
@@ -72,13 +72,13 @@ void draw()
         playing = true;
       }
       int random = (int )(Math.random() * 10 - 5);
-      if((mouseX + random) > 0)
+      if((mouseX + random) > 0 && (mouseX + random) < 500)
       {
 
         switch(brushType){
-          case 0:  elements[mouseX+random][mouseY] = new Element(mouseX+random, mouseY, id++);  //sand
+          case 0:  elements[mouseX+random][mouseY] = new Element(mouseX+random, mouseY, id++, 4);  //sand
                     break;
-          case 1:  elements[mouseX][mouseY] = new Water(mouseX+(random/2), mouseY, id++);  //water
+          case 1:  elements[mouseX+random][mouseY] = new Water((mouseX+random), mouseY, id++);  //water
                     break;
           case 2:  elements[mouseX][mouseY] = new Wall(mouseX, mouseY, pmouseX, pmouseY, id++);  //wall
                     break;
@@ -136,17 +136,18 @@ class Element //Elements are each block. Just a generic block of sand type
   int gSpeed = 1;
   boolean settled;
   int identification;
-  int frictionConstant = 3;
+  int frictionConstant;
   
   Element()
   {
   }
   
-  Element(int xP, int yP, int ident)
+  Element(int xP, int yP, int ident, int fC)
   {
     xPos = xP;
     yPos = yP;
     identification = ident;
+    frictionConstant = fC;
   }
   
   void display()
@@ -158,7 +159,9 @@ class Element //Elements are each block. Just a generic block of sand type
   }
   
   void gravity() 
-  { 
+  {
+    if(settled && yPos < height-1 && elements[xPos][(yPos+gSpeed)] == null)    //check for eraser
+      settled = false;
     if(!settled && yPos >= height-1) //Stops a block if it hits the bottom of the screen
     {
       settled = true;
@@ -179,18 +182,45 @@ class Element //Elements are each block. Just a generic block of sand type
         Element ele = elements[xPos][newyPos];    //this is the block that we're in conflict with.
         if(ele.settled)    //the block directly below our block is settled.  Since we're processing one block at a time, this is important
         {
-          int randomDir = random.nextInt(frictionConstant*2+1) - frictionConstant;    //we can go left or right by 3.
-          boolean stick=false;
-          boolean stickReverse = false;
-          if(randomDir != 0){    //if randomDir is 0, then we'd go straight down
-            if((xPos+randomDir) > 0 && (xPos+randomDir) < 500 && elements[xPos+randomDir][newyPos]!=null && elements[xPos+randomDir][newyPos].settled)
-              stick = true;
-            if((xPos-randomDir) > 0 && (xPos-randomDir) < 500 && elements[xPos-randomDir][newyPos]!=null && elements[xPos-randomDir][newyPos].settled)
-              stickReverse = true;
-          }else{
-            stick = true;
-            stickReverse=true;
+          int randomDirMax = ceil(pow(random.nextInt(frictionConstant),.2)*frictionConstant);
+          boolean negative = Math.random() < 0.5;
+          boolean stick = true;
+          boolean stickReverse = true;
+          int randomDir = 0;
+          if(randomDirMax != 0){    //if randomDir is 0, then we'd go straight down
+            if(negative)
+            {
+              randomDirMax*=-1;
+              for(randomDir = 0; randomDir > randomDirMax; randomDir--){
+                if((xPos+randomDir) > 0 && (xPos+randomDir) < 500 && (elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled))
+                {
+                  stick = false;
+                  break;
+                }
+                if((xPos-randomDir) > 0 && (xPos-randomDir) < 500 && (elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled))
+                {
+                  stickReverse = false;
+                  break;
+                }
+              }
+            }
+            else
+            {
+              for(randomDir = 0; randomDir < randomDirMax; randomDir++){
+                if((xPos+randomDir) > 0 && (xPos+randomDir) < 500 && elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled)
+                {
+                  stick = false;
+                  break;
+                }
+                if((xPos-randomDir) > 0 && (xPos-randomDir) < 500 && elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled)
+                {
+                  stickReverse = false;
+                  break;
+                }
+              }
+            }
           }
+          print(randomDir + "|");
           if(!stick){
             int oldxPos = xPos;
             xPos+=randomDir;
@@ -238,9 +268,15 @@ class Wall extends Element
 
 class Water extends Element
 {
-  int frictionConstant = 12;
   Water(int xP, int yP, int ident)
   {
-    super(xP,yP,ident);
+    super(xP,yP,ident, 16);
+  }
+  void display()
+  {
+    stroke(0,0,255);
+    fill(0);
+    rectMode(CENTER);
+    rect(xPos,yPos,1,1);
   }
 }
