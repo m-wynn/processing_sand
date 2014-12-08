@@ -134,8 +134,12 @@ void generateWall(int beginX, int beginY, int endX, int endY, int id){
     endX = beginX;
     beginX = tempX;
   }
-  for(int x = beginX;  x<endX; x++){
-    int y = int((endY-beginY)/(endX-beginX))*(x-beginX)+beginY;
+  for(int x = beginX;  x<=endX; x++){
+    int y;
+    if(endX==beginX)
+      y = beginY;
+    else
+      y = int((endY-beginY)/(endX-beginX))*(x-beginX)+beginY;
 
     elements[x][y] = new Wall(x, y, id);
     elements[x][y-1] = new Wall(x, y-1, id);
@@ -207,30 +211,56 @@ class Element //Elements are each block. Just a generic block of sand type
             {
               randomDirMax*=-1;
               for(randomDir = 0; randomDir > randomDirMax; randomDir--){
-                if((xPos+randomDir) > 0 && (xPos+randomDir) < 500 && (elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled))
-                {
-                  stick = false;
-                  break;
+                if((xPos+randomDir) > 0 && (xPos+randomDir) < 500){
+                  if(elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled)
+                  {
+                    stick = false;
+                    break;
+                  }
+                  else if(elements[xPos+randomDir][newyPos]!=null && cannotPass(elements[xPos+randomDir][newyPos].getClass().getName())){    //we don't want to leak through walls
+                    print("We've run into a wall");
+                    stick = true;
+                    break;
+                  }
                 }
-                if((xPos-randomDir) > 0 && (xPos-randomDir) < 500 && (elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled))
-                {
-                  stickReverse = false;
-                  break;
+                if((xPos-randomDir) > 0 && (xPos-randomDir) < 500){
+                  if(elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled)
+                  {
+                    stickReverse = false;
+                    break;
+                  }else if(elements[xPos-randomDir][newyPos]!=null && cannotPass(elements[xPos-randomDir][newyPos].getClass().getName())){
+                    stick=true;
+                    print("We've run into a wall");
+                    break;
+                  }
                 }
               }
             }
             else
             {
               for(randomDir = 0; randomDir < randomDirMax; randomDir++){
-                if((xPos+randomDir) > 0 && (xPos+randomDir) < 500 && (elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled))
-                {
-                  stick = false;
-                  break;
+                if((xPos+randomDir) > 0 && (xPos+randomDir) < 500){
+                  if(elements[xPos+randomDir][newyPos]==null || !elements[xPos+randomDir][newyPos].settled)
+                  {
+                    stick = false;
+                    break;
+                  }
+                  else if(elements[xPos+randomDir][newyPos]!=null && cannotPass(elements[xPos+randomDir][newyPos].getClass().getName())){    //we don't want to leak through walls
+                    print("We've run into a wall");
+                    stick = true;
+                    break;
+                  }
                 }
-                if((xPos-randomDir) > 0 && (xPos-randomDir) < 500 && (elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled))
-                {
-                  stickReverse = false;
-                  break;
+                if((xPos-randomDir) > 0 && (xPos-randomDir) < 500){
+                  if(elements[xPos-randomDir][newyPos]==null || !elements[xPos-randomDir][newyPos].settled)
+                  {
+                    stickReverse = false;
+                    break;
+                  }else if(elements[xPos-randomDir][newyPos]!=null && cannotPass(elements[xPos-randomDir][newyPos].getClass().getName())){
+                    stick=true;
+                    print("We've run into a wall");
+                    break;
+                  }
                 }
               }
             }
@@ -253,6 +283,12 @@ class Element //Elements are each block. Just a generic block of sand type
         }
       }
     }
+  }
+  boolean cannotPass(String className){
+    if(className == "processing_sand$Wall")
+      return true;
+    else
+      return false;
   }
 }
 
