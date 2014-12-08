@@ -27,7 +27,7 @@ int red;
 int blue;
 int green;
 
-float cur_amp=.2;
+float cur_amp=.02;
 /*
 Brush types:
  0: Sand
@@ -101,7 +101,7 @@ void draw()
   rect(500, 0, 500,500);
   if (mousePressed)
   {
-    if (mouseY > 0 && mouseX > 0 && mouseY < 500 && mouseX < 500 && !(mouseX > 400 && mouseY < 100))
+    if (mouseY > 0 && mouseX > 0 && mouseY < 500 && mouseX < 500)
     {
       if (playing== -1)
       {
@@ -118,7 +118,7 @@ void draw()
       }
       int random = (int )(Math.random() * 10 - 5);
       int random2 = (int )(Math.random() * 10 - 5);
-      if ((mouseX + random) > 0 && (mouseX + random) < 500)
+      if ((mouseX + random) > 0 && (mouseX + random) < 500 && (mouseX + random2) > 0 && (mouseX + random2) < 500)
       {
 
         switch(brushType) {
@@ -130,7 +130,9 @@ void draw()
           break;
         case 1:  
           if(elements[mouseX+random][mouseY] == null)
-          elements[mouseX+random][mouseY] = new Water((mouseX+random), mouseY, id++);  //water
+            elements[mouseX+random][mouseY] = new Water((mouseX+random), mouseY, id++);  //water
+          if(elements[mouseX+random2][mouseY] == null)
+            elements[mouseX+random2][mouseY] = new Water(mouseX+random2, mouseY, id++);
           break;
         case 2:   
           if (pmouseX > 0 && pmouseX < 500 && pmouseY > 0 && pmouseY < 500)
