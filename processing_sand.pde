@@ -193,6 +193,11 @@ class Element //Elements are each block. Just a generic block of sand type
     rect(xPos, yPos, 1, 1);
   }
 
+  int getRandomMax()
+  {
+    Random random = new Random();
+    return ceil(pow(random.nextInt(frictionConstant), .2)*frictionConstant);
+  }
   void gravity() 
   {
     if (settled && yPos < height-1 && elements[xPos][(yPos+gSpeed)] == null)    //check for eraser
@@ -201,8 +206,6 @@ class Element //Elements are each block. Just a generic block of sand type
     {
       settled = true;
     }
-    //print(brushType);
-    Random random = new Random();
     if (!settled) //Moves the block down at gSpeed's speed
     { 
       int newyPos = yPos + gSpeed;
@@ -216,7 +219,7 @@ class Element //Elements are each block. Just a generic block of sand type
         Element ele = elements[xPos][newyPos];    //this is the block that we're in conflict with.
         if (ele.settled)    //the block directly below our block is settled.  Since we're processing one block at a time, this is important
         {
-          int randomDirMax = ceil(pow(random.nextInt(frictionConstant), .2)*frictionConstant);
+          int randomDirMax = getRandomMax();
           boolean negative = Math.random() < 0.5;
           boolean stick = true;
           boolean stickReverse = true;
@@ -337,6 +340,10 @@ class Water extends Element
       return true;
     else
       return false;
+  }
+  int getRandomMax()
+  {
+    return 100;
   }
 }
 
