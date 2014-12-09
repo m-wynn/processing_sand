@@ -99,8 +99,34 @@ void draw()
   fill(0);
   rectMode(CORNER);
   rect(500, 0, 500,500);
+  fill(120,120,120);
+  stroke(244,244,244);
+  rect(width-90,height-50, 80, 40);
+  fill(0);
+  text("CLEAR", width-80, height-35);
   if (mousePressed)
   {
+    /*for (int i = 0; i < 500; i++)
+     {
+       for (int j = 499; j >= 0; j--)
+       {
+         if (elements[i][j]!=null)
+         {
+           Element ele = elements[i][j];
+           ele.settled = false;
+         }   
+       }
+     }*/
+   if(mouseY < height -10 && mouseY > height-50 && mouseX > width-90 && mouseX < width-10) 
+   {
+     for (int i = 0; i < 500; i++)
+     {
+       for (int j = 499; j >= 0; j--)
+       {
+          elements[i][j] = null;
+       }
+     }
+   }      
     if (mouseY > 0 && mouseX > 0 && mouseY < 500 && mouseX < 500)
     {
       if (playing== -1)
@@ -120,7 +146,6 @@ void draw()
       int random2 = (int )(Math.random() * 10 - 5);
       if ((mouseX + random) > 0 && (mouseX + random) < 500 && (mouseX + random2) > 0 && (mouseX + random2) < 500)
       {
-
         switch(brushType) {
         case 0:  
           if(elements[mouseX+random][mouseY] == null)
@@ -148,17 +173,6 @@ void draw()
           elements[mouseX-1][mouseY-1] = null;    
           elements[mouseX][mouseY-1] = null; 
           elements[mouseX][mouseY+1] = null;
-          for (int i = 0; i < 500; i++)
-          {
-            for (int j = 499; j >= 0; j--)
-            {
-              if (elements[i][j]!=null)
-              {
-                Element ele = elements[i][j];
-                ele.settled = false;
-              }
-            }
-          }
           break;
         }
       }
