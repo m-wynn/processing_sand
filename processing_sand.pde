@@ -99,10 +99,11 @@ void draw()
   fill(0);
   rectMode(CORNER);
   rect(500, 0, 500,500);
-  fill(120,120,120);
+  fill(red,green,blue);
   stroke(244,244,244);
   rect(width-90,height-50, 80, 40);
-  fill(0);
+  int contrastingColor = (red+green+blue > 270) ? 0 : 256;
+  fill(contrastingColor, contrastingColor, contrastingColor);
   text("CLEAR", width-80, height-35);
   if (mousePressed)
   {
