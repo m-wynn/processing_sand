@@ -104,7 +104,7 @@ void draw()
   rect(width-90,height-50, 80, 40);
   int contrastingColor = (red+green+blue > 270) ? 0 : 256;
   fill(contrastingColor, contrastingColor, contrastingColor);
-  text("CLEAR", width-80, height-35);
+  text("CLEAR", width-70, height-25);
   if (mousePressed)
   {
     /*for (int i = 0; i < 500; i++)
